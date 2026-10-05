@@ -1,0 +1,82 @@
+name: OpenSpookyHouse Android
+
+on:
+  push:
+    paths:
+      - 'openspookyhouse-android/**'
+      - '.github/workflows/openspookyhouse-android.yml'
+  pull_request:
+    paths:
+      - 'openspookyhouse-android/**'
+      - '.github/workflows/openspookyhouse-android.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: osh-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Game, receiver and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: openspookyhouse-android/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: openspookyhouse-android/web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - name: Check the bundled web build in the Android project is current
+        run: git diff --exit-code -- ../android/app/src/main/assets/www
+      - run: npx playwright-core install --with-deps chromium
+      - name: Play the game through end to end (synthetic placeholder assets)
+        run: node test/run-tests.mjs --shots test-screens
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-screens
+          path: openspookyhouse-android/web/test-screens
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cast-receiver
+          path: openspookyhouse-android/web/dist/receiver
+
+  android:
+    name: APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: openspookyhouse-android/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build debug and release APKs
+        env:
+          OSH_KEYSTORE_FILE: ${{ secrets.OSH_KEYSTORE_FILE }}
+          OSH_KEYSTORE_PASSWORD: ${{ secrets.OSH_KEYSTORE_PASSWORD }}
+          OSH_KEY_ALIAS: ${{ secrets.OSH_KEY_ALIAS }}
+          OSH_KEY_PASSWORD: ${{ secrets.OSH_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug assembleRelease lintDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OpenSpookyHouse-apk
+          path: |
+            openspookyhouse-android/android/app/build/outputs/apk/release/*.apk
+            openspookyhouse-android/android/app/build/outputs/apk/debug/*.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lint-report
+          path: openspookyhouse-android/android/app/build/reports/lint-results-debug.html

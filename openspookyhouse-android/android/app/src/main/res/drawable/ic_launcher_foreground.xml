@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Crescent moon -->
+    <path
+        android:fillColor="#FFF4C2"
+        android:pathData="M70,30a9,9 0,1 1,-9 -9a7,7 0,1 0,9 9z" />
+    <!-- House: main block, gabled roof and a tower with a pointed cap -->
+    <path
+        android:fillColor="#120A1E"
+        android:pathData="M30,80 L30,56 L26,56 L41,40 L50,49 L50,40 L54,40 L54,53 L56,55 L56,44 L59,37 L62,30 L65,37 L68,44 L68,80 Z" />
+    <!-- Lit windows -->
+    <path
+        android:fillColor="#FFD84A"
+        android:pathData="M35,60h5v6h-5z M44,60h5v6h-5z M60,48h4v6h-4z M60,60h4v6h-4z" />
+    <!-- Door -->
+    <path
+        android:fillColor="#7A3FB0"
+        android:pathData="M38,80 L38,72 A3.5,3.5 0,0 1,45 72 L45,80 Z" />
+    <!-- Ground -->
+    <path
+        android:fillColor="#120A1E"
+        android:pathData="M22,80h64v4h-64z" />
+</vector>

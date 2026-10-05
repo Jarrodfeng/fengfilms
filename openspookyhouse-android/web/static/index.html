@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#0b0612" />
+    <meta name="color-scheme" content="dark" />
+    <title>OpenSpookyHouse</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div id="app" class="mode-title">
+      <header id="topbar">
+        <span class="brand">OpenSpookyHouse</span>
+        <span id="castBadge" class="badge" hidden>On TV</span>
+        <button id="castBtn" class="icon" type="button" aria-label="Cast to TV" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3H3a2 2 0 0 0-2 2v3h2V5h18v14h-7v2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM1 18v3h3a3 3 0 0 0-3-3zm0-4v2a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7zm0-4v2a9 9 0 0 1 9 9h2A11 11 0 0 0 1 10z"/></svg>
+        </button>
+        <button id="menuBtn" class="icon" type="button" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+        </button>
+      </header>
+
+      <main id="stage">
+        <canvas id="screen" width="320" height="200" aria-label="Game screen"></canvas>
+      </main>
+
+      <form id="cmdrow" autocomplete="off">
+        <input
+          id="cmd"
+          type="text"
+          inputmode="text"
+          enterkeyhint="send"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          maxlength="80"
+          placeholder="Type a command…"
+          aria-label="Command"
+        />
+        <button id="sendBtn" type="submit" class="key wide" aria-label="Enter">⏎</button>
+      </form>
+
+      <nav id="verbs" aria-label="Quick verbs"></nav>
+
+      <section id="pad">
+        <div id="dpad" aria-label="Walk">
+          <button class="key dir" data-key="38" aria-label="Up">▲</button>
+          <button class="key dir" data-key="37" aria-label="Left">◀</button>
+          <button class="key dir stop" data-stop aria-label="Stop">■</button>
+          <button class="key dir" data-key="39" aria-label="Right">▶</button>
+          <button class="key dir" data-key="40" aria-label="Down">▼</button>
+        </div>
+        <div id="actions">
+          <div id="context"></div>
+          <div id="fkeys">
+            <button class="key" data-key="112">F1 Help</button>
+            <button class="key" data-key="113">F2 Options</button>
+            <button class="key" data-key="114">F3 Last</button>
+            <button class="key" data-key="115">F4 Save</button>
+            <button class="key" data-key="116">F5 Restore</button>
+            <button class="key" data-key="117">F6 Items</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="title" aria-live="polite">
+        <p id="titleStatus"></p>
+        <div id="titleButtons"></div>
+        <details id="filesHelp">
+          <summary>Where do I get the game files?</summary>
+          <p>OpenSpookyHouse is a free remake of <em>Hugo's House of Horrors</em> and uses the graphics from your own copy of the original game. Nothing from the original game is included in this app.</p>
+          <ul>
+            <li><b>GOG “The Hugo Trilogy”:</b> copy <code>OBJECTS.DAT</code> and <code>SCENERY.DAT</code> (and optionally <code>SOUNDS.DAT</code>) from the Hugo's House of Horrors folder to your phone.</li>
+            <li><b>Original DOS version:</b> copy all of the <code>.PIX</code> and <code>.ART</code> files.</li>
+            <li>A <code>.zip</code> containing those files works too.</li>
+          </ul>
+          <p>Then tap <b>Choose game files</b> and select them. They are stored privately inside the app, so you only need to do this once.</p>
+        </details>
+        <input id="fileInput" type="file" multiple hidden />
+      </section>
+
+      <dialog id="settings">
+        <form method="dialog">
+          <h2>Settings</h2>
+          <label>Picture shape
+            <select id="setAspect">
+              <option value="1.6">16:10 – square pixels (like OpenSpookyHouse)</option>
+              <option value="1.3333333333">4:3 – like the original DOS game</option>
+            </select>
+          </label>
+          <label>Scaling
+            <select id="setScaling">
+              <option value="fill">Fill the space</option>
+              <option value="integer">Pixel-perfect (whole multiples)</option>
+            </select>
+          </label>
+          <label class="check"><input id="setHaptics" type="checkbox" /> Vibrate on button presses</label>
+          <label class="check"><input id="setVerbs" type="checkbox" /> Show quick verb buttons</label>
+          <fieldset id="castSettings" hidden>
+            <legend>Chromecast</legend>
+            <label>Cast receiver App ID
+              <input id="setCastId" type="text" maxlength="16" autocapitalize="characters" spellcheck="false" placeholder="e.g. 1A2B3C4D" />
+            </label>
+            <p class="hint">Register the receiver page in the Google Cast SDK Developer Console to get this ID. Restart the app after changing it.</p>
+          </fieldset>
+          <div class="row">
+            <button id="setFiles" type="button">Change game files</button>
+            <button id="setTitle" type="button">Back to title</button>
+          </div>
+          <p class="hint" id="aboutText"></p>
+          <menu><button value="close" class="primary">Done</button></menu>
+        </form>
+      </dialog>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AppCompat is required by the Cast device chooser dialog -->
+    <style name="Theme.OpenSpookyHouse" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/osh_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimary">#5B2A8C</item>
+        <item name="colorAccent">#55FFFF</item>
+    </style>
+</resources>
