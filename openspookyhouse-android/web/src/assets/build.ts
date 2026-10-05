@@ -165,12 +165,15 @@ export async function buildAssets(files: AssetFiles, masks: Record<string, Pixel
   let scenery: RawFrame[] = [];
   const pixCache = new Map<string, RawFrame[]>();
   if (kind === 'dat') {
+    // Only decode as many frames as the sprite table refers to
+    const needed = (dat: string) =>
+      Math.max(...Object.values(SPRITE_CONFIG).filter((c) => c.dat === dat).flatMap((c) => c.dat_frames)) + 1;
     progress(0.1, 'Loading OBJECTS.DAT');
     await yieldToUi();
-    objects = readGfxDat(files.get('OBJECTS.DAT')!, true, ccIndices);
+    objects = readGfxDat(files.get('OBJECTS.DAT')!, true, ccIndices, needed('OBJECTS.DAT'));
     progress(0.25, 'Loading SCENERY.DAT');
     await yieldToUi();
-    scenery = readGfxDat(files.get('SCENERY.DAT')!, false, new Set());
+    scenery = readGfxDat(files.get('SCENERY.DAT')!, false, new Set(), needed('SCENERY.DAT'));
   }
 
   const built: BuiltSprite[] = [];

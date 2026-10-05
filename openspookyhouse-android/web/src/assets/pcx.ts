@@ -100,10 +100,10 @@ function parsePcxDat(buf: Uint8Array, useTransparency: boolean, colorFix: boolea
 }
 
 /** scr_parse_pcx_buffer: every PCX header found in an index entry is a frame. */
-function parsePcxEntry(buf: Uint8Array, useTransparency: boolean, colorFix: boolean): RawFrame[] {
+function parsePcxEntry(buf: Uint8Array, useTransparency: boolean, colorFix: boolean, limit = Infinity): RawFrame[] {
   const out: RawFrame[] = [];
   let pos = 0;
-  while (pos <= buf.length - 128) {
+  while (pos <= buf.length - 128 && out.length < limit) {
     if (buf[pos] === 0x0a && u8(buf, pos + 2) === 0x01) {
       const width = u16(buf, pos + 8) - u16(buf, pos + 4) + 1;
       const height = u16(buf, pos + 10) - u16(buf, pos + 6) + 1;
@@ -122,8 +122,13 @@ function parsePcxEntry(buf: Uint8Array, useTransparency: boolean, colorFix: bool
  * scr_read_gfx_dat. `colorFixIndices` holds the sprite indices of Hugo's
  * frames; the fix is applied per index entry, keyed by the number of frames
  * read before that entry, exactly like the GML.
+ *
+ * The whole-file index scan turns up tens of thousands of bogus "frames" in
+ * the real GOG files (over a gigabyte of pixels), but frames are numbered in
+ * file order, so reading stops once `limit` frames exist. The frames below
+ * the limit are identical to a full scan.
  */
-export function readGfxDat(file: Uint8Array, useTransparency: boolean, colorFixIndices: Set<number>): RawFrame[] {
+export function readGfxDat(file: Uint8Array, useTransparency: boolean, colorFixIndices: Set<number>, limit = Infinity): RawFrame[] {
   const size = file.length;
   const entries: { offset: number; length: number }[] = [];
   // The index is read as (offset, length) pairs through the whole file,
@@ -136,14 +141,15 @@ export function readGfxDat(file: Uint8Array, useTransparency: boolean, colorFixI
   }
   const sprites: RawFrame[] = [];
   for (const e of entries) {
+    if (sprites.length >= limit) break;
     // Bytes past the end of the file read as zero. Bogus entries can claim
     // gigabytes, so the zero padding is capped (it can never hold a header).
     const entry = new Uint8Array(Math.min(e.length, size - e.offset + 65536));
     entry.set(file.subarray(e.offset, Math.min(size, e.offset + e.length)));
-    const frames = parsePcxEntry(entry, useTransparency, colorFixIndices.has(sprites.length));
+    const frames = parsePcxEntry(entry, useTransparency, colorFixIndices.has(sprites.length), limit - sprites.length);
     for (const f of frames) sprites.push(f);
   }
-  return sprites;
+  return sprites.length > limit ? sprites.slice(0, limit) : sprites;
 }
 
 // ---------------------------------------------------------------------------
